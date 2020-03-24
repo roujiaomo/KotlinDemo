@@ -1,13 +1,10 @@
 package com.example.kotlindemo.kt.coroutine.coroutine_create
 
 import android.util.Log
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 /**
- * 四种方式创建协程
+ * 创建协程
  */
 
 class CouroutineCreate {
@@ -17,7 +14,9 @@ class CouroutineCreate {
      *
      * launch需要传入的参数:
      * context : 协程的上下文 , 指定线程 (非必填 有默认值 Dispatchers.Default)
-     * 可选参数 : Dispatchers.Default   Dispatchers.IO  Dispatchers.Main (主线程) Dispatchers.Unconfined (没指定，就是在当前线程)
+     * 可选参数 :Dispatchers.Default Dispatchers.Default默认的线程池  Dispatchers.IO
+     * Dispatchers.Main (主线程) Dispatchers.Unconfined (没指定，就是在当前线程)
+     *
      * CoroutineStart : 协程的启动模式
      * 可选参数 : CoroutineStart.DEFAULT 立即执行 CoroutineStart.LAZY 需要延迟执行(手动调用start)
      * block : 闭包方法体，定义协程内需要执行的操作
@@ -44,11 +43,37 @@ class CouroutineCreate {
     /**
      * 通过 GlobalScope.async 形式
      *
-     * 
+     * GlobalScope.async与GlobalScope.launch 方法大致相同
+     * 区别在于 返回值为 Deferred类型 Deferred是Job的子类 ,比job对了一个await()方法
+     *
+     * launch 和  async都不会阻塞线程 就算是delay()
      */
     fun createByAsync() {
-
-
+        GlobalScope.launch(Dispatchers.Unconfined) {
+            val deferred = GlobalScope.async {
+                delay(1000L)
+                return@async "taonce"
+            }
+            //挂起协程 但是不会阻塞线程
+            val result = deferred.await()
+        }
     }
+
+    /**
+     * 通过 runBlocking
+     * runBlocking启动的协程任务会阻断当前线程，直到该协程执行结束。
+     * runBlocking 和 launch 区别的地方就是 runBlocking 的 delay 方法是可以阻塞当前的线程的，和Thread.sleep() 一样
+     */
+    fun createByRunBlocking() {
+        runBlocking {
+            // 阻塞1s
+            delay(1000L)
+        }
+        // 阻塞2s
+        Thread.sleep(2000L)
+    }
+
+
+
 
 }
