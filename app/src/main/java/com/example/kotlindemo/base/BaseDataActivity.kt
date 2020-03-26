@@ -2,13 +2,14 @@ package com.example.kotlindemo.base
 
 import android.content.Context
 import android.os.Bundle
-import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.example.kotlindemo.constant.LoadStatus
 import com.example.kotlindemo.widget.ProgressLoading
+import com.gyf.immersionbar.ImmersionBar
 import java.lang.reflect.ParameterizedType
+import com.example.kotlindemo.R
 
 abstract class BaseDataActivity<VM : BaseViewModel> : AppCompatActivity() {
     lateinit var mViewModel: VM
@@ -16,6 +17,11 @@ abstract class BaseDataActivity<VM : BaseViewModel> : AppCompatActivity() {
     lateinit var mContext: Context
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ImmersionBar.with(this)
+            .statusBarColor(R.color.title_blue)
+            .statusBarAlpha(0.2f) //状态栏透明度，不写默认0.0f
+            .fitsSystemWindows(true)
+            .init()
         mContext = this
         mProgressLoading = ProgressLoading.create(mContext)
         setContentView(getLayoutId())

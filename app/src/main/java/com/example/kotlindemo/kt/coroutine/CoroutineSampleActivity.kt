@@ -113,7 +113,6 @@ class CoroutineSampleActivity : AppCompatActivity(), View.OnClickListener {
         return "返回数据"
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_coroutine_sample)

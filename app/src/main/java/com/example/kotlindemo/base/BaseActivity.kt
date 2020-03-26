@@ -1,15 +1,20 @@
 package com.example.kotlindemo.base
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.lifecycle.ViewModel
+import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlindemo.R
+import com.gyf.immersionbar.ImmersionBar
 
 abstract  class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(getLayoutId())
+        ImmersionBar.with(this)
+            .statusBarColor(R.color.title_blue)
+            .statusBarAlpha(0.2f) //状态栏透明度，不写默认0.0f
+            .fitsSystemWindows(true)
+            .init()
         initView()
         initData()
     }
