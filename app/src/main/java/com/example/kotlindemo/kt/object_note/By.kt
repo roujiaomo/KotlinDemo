@@ -15,6 +15,8 @@ class By {
      * lateinit 不可以初始化空值 和基础数据类型
      */
     val  name by lazy {
+        val s:String = ""
+        s.toInt()
         getType(1);
     }
 
