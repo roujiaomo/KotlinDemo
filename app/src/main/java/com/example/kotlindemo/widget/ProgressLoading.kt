@@ -56,6 +56,7 @@ class ProgressLoading private constructor(context: Context, theme: Int) : Dialog
         显示加载信息
      */
     fun showMessage(msg: String) {
+        showLoading()
         findViewById<TextView>(R.id.tv_Message).apply {
             text = msg
             visible()
