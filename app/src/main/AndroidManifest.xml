@@ -13,16 +13,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".view.WelcomeActivity">
+
+        </activity>
+        <activity android:name=".kt.coroutine.CoroutineSampleActivity">
+        </activity>
+        <activity android:name=".base.BaseActivity" />
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity android:name=".kt.coroutine.CoroutineSampleActivity">
-        </activity>
-        <activity android:name=".base.BaseActivity" />
-        <activity android:name=".MainActivity"></activity> <!-- ===============沉浸式状态栏适配===================== -->
+        </activity> <!-- ===============沉浸式状态栏适配===================== -->
         <!-- 适配全面屏 -->
         <meta-data
             android:name="android.max_aspect"
