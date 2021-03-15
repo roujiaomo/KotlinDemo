@@ -5,11 +5,5 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".view.WelcomeActivity">
-    <fragment
-        android:id="@+id/my_nav_host_fragment"
-        android:name="androidx.navigation.fragment.NavHostFragment"
-        app:navGraph="@navigation/navigation_welcome"
-        app:defaultNavHost="true"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
