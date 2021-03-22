@@ -18,6 +18,8 @@ class By {
         val s:String = ""
         s.toInt()
         getType(1);
+        getType(2);
+
     }
 
     private fun getType(type:Int): Any {
