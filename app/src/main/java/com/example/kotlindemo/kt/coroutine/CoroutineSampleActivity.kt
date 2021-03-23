@@ -1,17 +1,12 @@
 package com.example.kotlindemo.kt.coroutine
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.example.kotlindemo.R
-import com.lzy.okgo.OkGo
-import com.lzy.okgo.callback.StringCallback
 import kotlinx.android.synthetic.main.activity_coroutine_sample.*
 import kotlinx.coroutines.*
-import okhttp3.Call
-import okhttp3.Response
-import java.lang.Exception
 
 class CoroutineSampleActivity : AppCompatActivity(), View.OnClickListener {
 

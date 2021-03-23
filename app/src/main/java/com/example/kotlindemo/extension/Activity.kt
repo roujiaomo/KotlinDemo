@@ -15,9 +15,12 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
+import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.uniqlo.circle.ui.base.BaseFragment
 
 /**
@@ -52,11 +55,11 @@ internal fun FragmentActivity.replaceFragment(
 }
 
 internal fun FragmentActivity.addFragment(
-    @IdRes containerId: Int, fragment: BaseFragment,
+    @IdRes containerId: Int, fragment: BaseFragment<ViewDataBinding>,
     t: (transaction: FragmentTransaction) -> Unit = {}, backStackString: String? = null
 ) {
     if (supportFragmentManager.findFragmentByTag(fragment.javaClass.simpleName) == null) {
-        (getCurrentFragment(containerId) as? BaseFragment)?.onMoveToNextScreen()
+        (getCurrentFragment(containerId) as? BaseFragment<*>)?.onMoveToNextScreen()
         val transaction = supportFragmentManager.beginTransaction()
         t.invoke(transaction)
         transaction.add(containerId, fragment, fragment.javaClass.simpleName)
@@ -69,7 +72,7 @@ internal fun FragmentActivity.addFragment(
 }
 
 internal fun FragmentActivity.addFragment(
-    @IdRes containerId: Int, fragment: BaseFragment,
+    @IdRes containerId: Int, fragment: BaseFragment<ViewDataBinding>,
     t: (transaction: FragmentTransaction) -> Unit = {}, backStackString: String? = null,
     tag: String
 ) {
@@ -214,7 +217,9 @@ internal fun Context.px2dp(px: Float): Float {
 internal fun Context.getHeightScreenHasNav() =
     if (hasNavBar()) getHeightScreen() + getNavigationBarHeight() else getHeightScreen()
 
-
+inline fun <reified VM : ViewModel> FragmentActivity.activityViewModelProvider(
+    factory: ViewModelProvider.Factory
+) = ViewModelProvider(this.viewModelStore,factory).get(VM::class.java)
 /**
  * @param action action for positive button clicked.
  * @param cancelAction cancel action if we need.

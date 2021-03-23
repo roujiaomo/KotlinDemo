@@ -5,20 +5,23 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.IdRes
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.uniqlo.circle.extension.getCurrentFragment
 import com.uniqlo.circle.extension.hideKeyboard
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import kotlin.reflect.KClass
 
 /**
  * Copyright © 2017 Asian Tech Co., Ltd.
  * Use this class to create base function for all fragments in this app
  */
-abstract class BaseFragment : Fragment(), ChangeDisplayStatusListener {
+abstract class BaseFragment<DB: ViewDataBinding> : Fragment(), ChangeDisplayStatusListener {
 
     companion object {
 
@@ -27,13 +30,13 @@ abstract class BaseFragment : Fragment(), ChangeDisplayStatusListener {
     }
 
     internal var moveToNextScreen = false
-    internal var currentChildFragment: BaseFragment? = null
+    internal var currentChildFragment: BaseFragment<*>? = null
     private val subscription: CompositeDisposable = CompositeDisposable()
     private val subscriptionSystemEvent: CompositeDisposable = CompositeDisposable()
     private var requestCode: Int? = null
     private var resultCode: Int = RESULT_CANCELED
     private var result: Intent? = null
-
+    private lateinit  var binding: DB
     override fun onAttach(context: Context) {
         super.onAttach(context)
     }
@@ -45,6 +48,15 @@ abstract class BaseFragment : Fragment(), ChangeDisplayStatusListener {
         }
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = DataBindingUtil.inflate(inflater, getLayoutId(), container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -52,11 +64,6 @@ abstract class BaseFragment : Fragment(), ChangeDisplayStatusListener {
             hideKeyBoard()
         }
         addBackStackChangeListener()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        onBindViewModel()
     }
 
     override fun onPause() {
@@ -90,11 +97,6 @@ abstract class BaseFragment : Fragment(), ChangeDisplayStatusListener {
     override fun onBackPressFragment() = Unit
 
     /**
-     * This function is used to define subscription
-     */
-    abstract fun onBindViewModel()
-
-    /**
      * Unsubscribe events for FA.
      */
     internal fun clearSubscriptionSystemEvent() {
@@ -119,8 +121,6 @@ abstract class BaseFragment : Fragment(), ChangeDisplayStatusListener {
 
     internal open fun isShowFooterBar() = false
 
-    abstract fun getCurrentScreenFirebaseName(): String
-
     protected fun addDisposables(vararg ds: Disposable) {
         ds.forEach { subscription.add(it) }
     }
@@ -138,7 +138,7 @@ abstract class BaseFragment : Fragment(), ChangeDisplayStatusListener {
 
     private fun addBackStackChangeListener() {
         childFragmentManager.addOnBackStackChangedListener {
-                val current = getCurrentFragment(getContainerId()) as? BaseFragment
+                val current = getCurrentFragment(getContainerId()) as? BaseFragment<*>
                 current?.let {
                     if (!it.moveToNextScreen) {
                         return@let
@@ -164,15 +164,10 @@ abstract class BaseFragment : Fragment(), ChangeDisplayStatusListener {
         ds.forEach { subscriptionSystemEvent.add(it) }
     }
 
-    open fun shouldHookPopBackStack(): Boolean = false
+    abstract fun getLayoutId(): Int
 
-    open fun shouldHookMainHideKeyboard(): Boolean = true
 
     open fun shouldHookBaseHideKeyboard(): Boolean = false
 
-    /**
-     *  Call back when fragment pop from back stack
-     */
-    internal open fun trackEventScreenComeback(previousClass: KClass<*>?) {}
 
 }

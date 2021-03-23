@@ -2,14 +2,17 @@ package com.example.kotlindemo.base
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import com.example.kotlindemo.R
 import com.gyf.immersionbar.ImmersionBar
 
-abstract  class BaseActivity : AppCompatActivity() {
-
+abstract  class BaseActivity<DB : ViewDataBinding> : AppCompatActivity() {
+   internal lateinit var mBinding: DB
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(getLayoutId())
+        mBinding = DataBindingUtil.setContentView(this, getLayoutId())
         ImmersionBar.with(this)
             .statusBarColor(R.color.title_blue)
             .statusBarAlpha(0.2f) //状态栏透明度，不写默认0.0f

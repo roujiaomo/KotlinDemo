@@ -1,0 +1,1053 @@
+Index: app/src/main/java/com/example/kotlindemo/MainActivity.kt
+===================================================================
+--- app/src/main/java/com/example/kotlindemo/MainActivity.kt	(revision 792e085084404bc739fa5b8a0a9424acef48c019)
++++ app/src/main/java/com/example/kotlindemo/MainActivity.kt	(revision 792e085084404bc739fa5b8a0a9424acef48c019)
+@@ -1,148 +0,0 @@
+-package com.example.kotlindemo
+-
+-import android.annotation.TargetApi
+-import android.graphics.Bitmap
+-import android.os.Build
+-import android.util.Log
+-import android.webkit.*
+-import androidx.annotation.RequiresApi
+-import com.example.kotlindemo.base.BaseActivity
+-import kotlinx.android.synthetic.main.activity_main.*
+-import okhttp3.OkHttpClient
+-import okhttp3.Request
+-import okhttp3.Response
+-
+-class MainActivity : BaseActivity() {
+-
+-     val webUrl :String = "https://stage-api.stylehint.com/v1/auth-scopes?brand=UNIQLO&region=JP"
+-
+-    override fun getLayoutId(): Int {
+-        return R.layout.activity_main;
+-    }
+-
+-    override fun initView() {
+-
+-    }
+-
+-//    ▿ 0 : 2 elements
+-//      - key : “client-id”
+-//      - value : “bYY8tDSJtsyNKO5apY6WO9GIxuCcBTaO”
+-//     ▿ 1 : 2 elements
+-//      - key : “Authorization”
+-//      - value : “”
+-//     ▿ 2 : 2 elements
+-//      - key : “Content-Type”
+-//      - value : “application/x-www-form-urlencoded”
+-//     ▿ 3 : 2 elements
+-//      - key : “Accept-Region”
+-//      - value : “US”
+-//     ▿ 4 : 2 elements
+-//      - key : “X-ABTEST-KEY-OUTFIT-EXPLORE”
+-//      - value : “3J0ZR34D”
+-//     ▿ 5 : 2 elements
+-//      - key : “User-Agent”
+-//      - value : “Circle-JP/2.10.0 iOS/14.4 x86_64"
+-//     ▿ 6 : 2 elements
+-//      - key : “X-ABTEST-KEY-OUTFIT-FEED”
+-//      - value : “Variant A”
+-//     ▿ 7 : 2 elements
+-//      - key : “Accept-Language”
+-//      - value : “US-en”
+-
+-    override fun initData() {
+-        btn_load.setOnClickListener {
+-            with(webView){
+-               settings.useWideViewPort = true;
+-                settings.loadWithOverviewMode = true;
+-                settings.layoutAlgorithm = WebSettings.LayoutAlgorithm.NORMAL;
+-                webViewClient = LoginEmailWebViewClient()
+-                loadUrl(webUrl)
+-            }
+-        }
+-    }
+-
+-    private inner class LoginEmailWebViewClient : WebViewClient() {
+-        override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+-            return true
+-        }
+-
+-        @TargetApi(Build.VERSION_CODES.N)
+-        override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+-            val url = request?.url?.toString()
+-            return true
+-        }
+-
+-        override fun onReceivedError(view: WebView?, errorCode: Int, description: String?, failingUrl: String?) {
+-            super.onReceivedError(view, errorCode, description, failingUrl)
+-        }
+-
+-        override fun shouldInterceptRequest(
+-            view: WebView?,
+-            request: WebResourceRequest?
+-        ): WebResourceResponse? {
+-            return if(request?.url.toString() == webUrl){
+-                getAuthScope(request?.url.toString())
+-            }else{
+-                super.shouldInterceptRequest(view, request)
+-            }
+-        }
+-        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+-        override fun onReceivedHttpError(
+-            view: WebView?,
+-            request: WebResourceRequest?,
+-            errorResponse: WebResourceResponse?
+-        ) {
+-            super.onReceivedHttpError(view, request, errorResponse)
+-        }
+-
+-        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+-            super.onPageStarted(view, url, favicon)
+-        }
+-
+-        override fun onPageFinished(view: WebView?, url: String?) {
+-            super.onPageFinished(view, url)
+-        }
+-
+-        private fun setBlankWebView(webView: WebView?) {
+-            webView?.loadUrl("about:blank")
+-        }
+-
+-    }
+-
+-    private fun getAuthScope(webUrl:String):WebResourceResponse {
+-        val okHttpClientBuilder = OkHttpClient().newBuilder()
+-        // Current request url will redirect other path , The final response cannot get the 【location】 from the response header element
+-        // So need to cancel okHttp redirect config
+-        okHttpClientBuilder.followRedirects(true)
+-        val okHttpClient = okHttpClientBuilder.build()
+-        val request = Request.Builder()
+-            .url(webUrl)
+-        request.addHeader("client-id", "bYY8tDSJtsyNKO5apY6WO9GIxuCcBTaO")
+-            .addHeader("Authorization", "")
+-            .addHeader("Content-Type", "application/x-www-form-urlencoded")
+-            .addHeader("Accept-Region", "US")
+-            .addHeader("User-Agent", "Circle-JP/2.10.0 iOS/14.4 x86_64")
+-            .addHeader("Accept-Language",  "US-en")
+-            .addHeader("X-ABTEST-KEY-OUTFIT-EXPLORE",  "3J0ZR34D")
+-            .addHeader("X-ABTEST-KEY-OUTFIT-FEED",  "Variant A")
+-
+-       val call = okHttpClient.newCall(request.build())
+-        var response:Response? =null
+-        try {
+-             response = call.execute()
+-
+-        } catch (e: Exception) {
+-            e.printStackTrace()
+-        }
+-        Log.d(TAG, "onResponse: ")
+-        var contentType = response?.header("Content-Type", "text/html").toString().split(";")[0]
+-        contentType = "text/html"
+-        return  WebResourceResponse(
+-            contentType,
+-            null,
+-            response?.body?.byteStream()
+-        )
+-    }
+-
+-    private  val TAG = "MainActivity"
+-}
+Index: app/src/main/java/com/example/kotlindemo/view/main/MainTab.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/kotlindemo/view/main/MainTab.kt	(date 1616085233845)
++++ app/src/main/java/com/example/kotlindemo/view/main/MainTab.kt	(date 1616085233845)
+@@ -0,0 +1,40 @@
++package com.uniqlo.circle.ui.main
++
++import androidx.annotation.DrawableRes
++import androidx.annotation.StringRes
++import com.example.kotlindemo.R
++import com.example.kotlindemo.view.component.ComponentContainerFragment
++import com.example.kotlindemo.view.jetpack.JetpackContainerFragment
++import com.example.kotlindemo.view.other.OtherContainerFragment
++import com.example.kotlindemo.view.source_code.SourceCodeContainerFragment
++
++class MainTab(val itemType: TabItemType) {
++
++    companion object {
++        internal const val COMPONENT_TAB_POSITION = 0
++        internal const val JETPACK_TAB_POSITION = 1
++        internal const val SOURCE_CODE_TAB_POSITION = 2
++        internal const val OTHER_TAB_POSITION = 3
++    }
++
++
++    /**
++     * TabItemType
++     */
++    enum class TabItemType(@DrawableRes val icon: Int,@StringRes val title:Int) {
++        COMPONENT(R.drawable.selector_main_tab_item_component, R.string.main_tab_component_title),
++        JETPACK(R.drawable.selector_main_tab_item_jetpack,R.string.main_tab_jetpack_title),
++        SOURCE_CODE(R.drawable.selector_main_tab_item_source_code,R.string.main_tab_source_code_title),
++        OTHER(R.drawable.selector_main_tab_item_other, R.string.main_tab_other_title),
++    }
++
++    /**
++     * Method return item of tab each position
++     */
++    fun getItem(): androidx.fragment.app.Fragment? = when (itemType) {
++        TabItemType.COMPONENT -> ComponentContainerFragment.newInstance()
++       TabItemType.JETPACK -> JetpackContainerFragment.newInstance()
++        TabItemType.SOURCE_CODE -> SourceCodeContainerFragment.newInstance()
++        TabItemType.OTHER -> OtherContainerFragment.newInstance()
++    }
++}
+Index: app/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>apply plugin: 'com.android.application'\r\napply plugin: 'kotlin-android'\r\napply plugin: 'kotlin-android-extensions'\r\napply plugin: 'androidx.navigation.safeargs'\r\nandroid {\r\n    compileSdkVersion 29\r\n    buildToolsVersion \"29.0.2\"\r\n\r\n    defaultConfig {\r\n        applicationId \"com.example.kotlindemo\"\r\n        minSdkVersion 19\r\n        targetSdkVersion 29\r\n        versionCode 1\r\n        versionName \"1.0\"\r\n        multiDexEnabled true\r\n        testInstrumentationRunner \"androidx.test.runner.AndroidJUnitRunner\"\r\n    }\r\n\r\n    buildTypes {\r\n        release {\r\n            minifyEnabled false\r\n            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'\r\n        }\r\n    }\r\n\r\n}\r\n\r\ndependencies {\r\n    implementation fileTree(dir: 'libs', include: ['*.jar'])\r\n    implementation \"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version\"\r\n    implementation 'androidx.appcompat:appcompat:1.1.0'\r\n    implementation 'androidx.core:core-ktx:1.0.2'\r\n    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'\r\n    implementation 'androidx.legacy:legacy-support-v4:1.0.0'\r\n    testImplementation 'junit:junit:4.12'\r\n    androidTestImplementation 'androidx.test.ext:junit:1.1.1'\r\n    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'\r\n    //RxJava 和 RxAndroid ,rxBinding\r\n    implementation 'com.squareup.retrofit2:retrofit:2.3.0'\r\n    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'\r\n    implementation 'io.reactivex.rxjava2:rxjava:2.x.y'\r\n    implementation 'com.google.code.gson:gson:2.8.5'\r\n    implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0' //用于处理UI 例如重复点击\r\n    implementation 'com.squareup.retrofit2:converter-gson:2.3.0' //    //Gson 库\r\n    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'//转换器，请求结果转换成Model\r\n\r\n    implementation 'com.github.bumptech.glide:glide:4.6.1'\r\n    annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'\r\n    api 'org.greenrobot:eventbus:3.1.1'\r\n    implementation 'android.arch.lifecycle:extensions:1.1.1' // ViewModel and LiveData\r\n    implementation 'androidx.recyclerview:recyclerview:1.1.0'\r\n    implementation 'com.google.android.material:material:1.1.0'\r\n    implementation 'me.jessyan:autosize:1.2.0'    //屏幕适配\r\n    debugImplementation \"com.github.whataa:pandora:androidx_v2.0.6\" //查看网络数据 沙盒 视图工具\r\n    implementation 'com.blankj:utilcodex:1.26.0' //全部工具类\r\n    implementation 'com.github.bumptech.glide:glide:3.8.0'\r\n\r\n    implementation 'com.android.support:multidex:1.0.3'\r\n\r\n    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5'//协程\r\n    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5'\r\n    implementation 'com.lzy.net:okgo:2.1.4'\r\n    implementation 'com.gyf.immersionbar:immersionbar:3.0.0'//沉浸式状态栏\r\n\r\n    implementation \"androidx.navigation:navigation-fragment-ktx:2.2.2\"\r\n    implementation \"androidx.navigation:navigation-ui-ktx:2.2.2\"\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/build.gradle	(revision 792e085084404bc739fa5b8a0a9424acef48c019)
++++ app/build.gradle	(date 1616082546736)
+@@ -22,7 +22,9 @@
+             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+         }
+     }
+-
++    dataBinding {
++        enabled = true
++    }
+ }
+ 
+ dependencies {
+@@ -38,6 +40,7 @@
+     //RxJava 和 RxAndroid ,rxBinding
+     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+     implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
++    implementation "com.squareup.okhttp3:okhttp:4.9.0"
+     implementation 'io.reactivex.rxjava2:rxjava:2.x.y'
+     implementation 'com.google.code.gson:gson:2.8.5'
+     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0' //用于处理UI 例如重复点击
+@@ -59,7 +62,6 @@
+ 
+     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5'//协程
+     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5'
+-    implementation 'com.lzy.net:okgo:2.1.4'
+     implementation 'com.gyf.immersionbar:immersionbar:3.0.0'//沉浸式状态栏
+ 
+     implementation "androidx.navigation:navigation-fragment-ktx:2.2.2"
+Index: app/src/main/res/layout/fragment_component_container.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/fragment_component_container.xml	(date 1616084069182)
++++ app/src/main/res/layout/fragment_component_container.xml	(date 1616084069182)
+@@ -0,0 +1,21 @@
++<?xml version="1.0" encoding="utf-8"?>
++<layout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools">
++
++    <data>
++
++    </data>
++
++    <FrameLayout
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        tools:context=".view.component.ComponentContainerFragment">
++
++        <!-- TODO: Update blank fragment layout -->
++        <TextView
++            android:layout_width="match_parent"
++            android:layout_height="match_parent"
++            android:text="@string/hello_blank_fragment" />
++
++    </FrameLayout>
++</layout>
+\ No newline at end of file
+Index: app/src/main/java/com/example/kotlindemo/view/component/ComponentContainerFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/kotlindemo/view/component/ComponentContainerFragment.kt	(date 1616084069175)
++++ app/src/main/java/com/example/kotlindemo/view/component/ComponentContainerFragment.kt	(date 1616084069175)
+@@ -0,0 +1,15 @@
++package com.example.kotlindemo.view.component
++
++import com.example.kotlindemo.R
++import com.example.kotlindemo.databinding.FragmentComponentContainerBinding
++import com.uniqlo.circle.ui.base.BaseFragment
++
++class ComponentContainerFragment : BaseFragment<FragmentComponentContainerBinding>() {
++
++    companion object {
++        @JvmStatic
++        fun newInstance() = ComponentContainerFragment()
++    }
++
++    override fun getLayoutId() = R.layout.fragment_component_container
++}
+\ No newline at end of file
+Index: app/src/main/java/com/example/kotlindemo/view/main/MainActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/kotlindemo/view/main/MainActivity.kt	(date 1616079536146)
++++ app/src/main/java/com/example/kotlindemo/view/main/MainActivity.kt	(date 1616079536146)
+@@ -0,0 +1,29 @@
++package com.example.kotlindemo.view.main
++
++import androidx.fragment.app.Fragment
++import com.example.kotlindemo.R
++import com.example.kotlindemo.base.BaseActivity
++
++class MainActivity : BaseActivity() {
++
++    private lateinit var tabTitle: List<String>
++    private lateinit var mFragments: List<Fragment>
++
++//    private val homeFragment: HomeFragment? = null
++//    private val listFragment: ListFragment? = null
++//    private val mineFragment: MineFragment? = null
++//    private val mAdapter: BaseFragmentPagerAdapter? = null
++
++    override fun getLayoutId(): Int {
++        return R.layout.activity_main;
++    }
++
++    override fun initView() {
++
++    }
++
++
++    override fun initData() {
++
++    }
++}
+Index: app/src/main/res/values/dimen.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/dimen.xml	(date 1615996299518)
++++ app/src/main/res/values/dimen.xml	(date 1615996299518)
+@@ -0,0 +1,4 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <dimen name="tabLayoutHeight">50dp</dimen>
++</resources>
+\ No newline at end of file
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    package=\"com.example.kotlindemo\">\r\n\r\n    <uses-permission android:name=\"android.permission.INTERNET\" />\r\n\r\n    <application\r\n        android:allowBackup=\"true\"\r\n        android:icon=\"@mipmap/ic_launcher\"\r\n        android:label=\"@string/app_name\"\r\n        android:networkSecurityConfig=\"@xml/network_security_config\"\r\n        android:roundIcon=\"@mipmap/ic_launcher_round\"\r\n        android:supportsRtl=\"true\"\r\n        android:theme=\"@style/AppTheme\">\r\n        <activity android:name=\".view.WelcomeActivity\">\r\n\r\n        </activity>\r\n        <activity android:name=\".kt.coroutine.CoroutineSampleActivity\">\r\n        </activity>\r\n        <activity android:name=\".base.BaseActivity\" />\r\n        <activity android:name=\".MainActivity\">\r\n            <intent-filter>\r\n                <action android:name=\"android.intent.action.MAIN\" />\r\n\r\n                <category android:name=\"android.intent.category.LAUNCHER\" />\r\n            </intent-filter>\r\n        </activity> <!-- ===============沉浸式状态栏适配===================== -->\r\n        <!-- 适配全面屏 -->\r\n        <meta-data\r\n            android:name=\"android.max_aspect\"\r\n            android:value=\"2.4\" /> <!-- 适配华为（huawei）刘海屏 -->\r\n        <meta-data\r\n            android:name=\"android.notch_support\"\r\n            android:value=\"true\" /> <!-- 适配小米（xiaomi）刘海屏 -->\r\n        <meta-data\r\n            android:name=\"notch.config\"\r\n            android:value=\"portrait|landscape\" />\r\n    </application>\r\n\r\n</manifest>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/AndroidManifest.xml	(revision 792e085084404bc739fa5b8a0a9424acef48c019)
++++ app/src/main/AndroidManifest.xml	(date 1616077265701)
+@@ -18,7 +18,7 @@
+         <activity android:name=".kt.coroutine.CoroutineSampleActivity">
+         </activity>
+         <activity android:name=".base.BaseActivity" />
+-        <activity android:name=".MainActivity">
++        <activity android:name=".view.main.MainActivity">
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+ 
+Index: app/src/main/res/layout/fragment_source_code_container.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/fragment_source_code_container.xml	(date 1616084069186)
++++ app/src/main/res/layout/fragment_source_code_container.xml	(date 1616084069186)
+@@ -0,0 +1,21 @@
++<?xml version="1.0" encoding="utf-8"?>
++<layout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools">
++
++    <data>
++
++    </data>
++
++    <FrameLayout
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        tools:context=".view.source_code.SourceCodeContainerFragment">
++
++        <!-- TODO: Update blank fragment layout -->
++        <TextView
++            android:layout_width="match_parent"
++            android:layout_height="match_parent"
++            android:text="@string/hello_blank_fragment" />
++
++    </FrameLayout>
++</layout>
+\ No newline at end of file
+Index: app/src/main/java/com/example/kotlindemo/view/source_code/SourceCodeContainerFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/kotlindemo/view/source_code/SourceCodeContainerFragment.kt	(date 1616084069160)
++++ app/src/main/java/com/example/kotlindemo/view/source_code/SourceCodeContainerFragment.kt	(date 1616084069160)
+@@ -0,0 +1,15 @@
++package com.example.kotlindemo.view.source_code
++
++import com.example.kotlindemo.R
++import com.example.kotlindemo.databinding.FragmentSourceCodeContainerBinding
++import com.uniqlo.circle.ui.base.BaseFragment
++
++class SourceCodeContainerFragment : BaseFragment<FragmentSourceCodeContainerBinding>() {
++
++    companion object {
++        @JvmStatic
++        fun newInstance() = SourceCodeContainerFragment()
++    }
++
++    override fun getLayoutId(): Int = R.layout.fragment_source_code_container
++}
+\ No newline at end of file
+Index: app/src/main/res/layout/fragment_jetpack_container.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/fragment_jetpack_container.xml	(date 1616084069193)
++++ app/src/main/res/layout/fragment_jetpack_container.xml	(date 1616084069193)
+@@ -0,0 +1,21 @@
++<?xml version="1.0" encoding="utf-8"?>
++<layout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools">
++
++    <data>
++
++    </data>
++
++    <FrameLayout
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        tools:context=".view.jetpack.JetpackContainerFragment">
++
++        <!-- TODO: Update blank fragment layout -->
++        <TextView
++            android:layout_width="match_parent"
++            android:layout_height="match_parent"
++            android:text="@string/hello_blank_fragment" />
++
++    </FrameLayout>
++</layout>
+\ No newline at end of file
+Index: app/src/main/java/com/example/kotlindemo/view/jetpack/JetpackContainerFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/kotlindemo/view/jetpack/JetpackContainerFragment.kt	(date 1616084069164)
++++ app/src/main/java/com/example/kotlindemo/view/jetpack/JetpackContainerFragment.kt	(date 1616084069164)
+@@ -0,0 +1,15 @@
++package com.example.kotlindemo.view.jetpack
++
++import com.example.kotlindemo.R
++import com.example.kotlindemo.databinding.FragmentJetpackContainerBinding
++import com.uniqlo.circle.ui.base.BaseFragment
++
++class JetpackContainerFragment : BaseFragment<FragmentJetpackContainerBinding>() {
++
++    companion object {
++        @JvmStatic
++        fun newInstance() = JetpackContainerFragment()
++    }
++
++    override fun getLayoutId() = R.layout.fragment_jetpack_container
++}
+\ No newline at end of file
+Index: app/src/main/res/layout/fragment_other_container.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/fragment_other_container.xml	(date 1616082845274)
++++ app/src/main/res/layout/fragment_other_container.xml	(date 1616082845274)
+@@ -0,0 +1,21 @@
++<?xml version="1.0" encoding="utf-8"?>
++<layout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools">
++
++    <data>
++
++    </data>
++
++    <FrameLayout
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        tools:context=".view.other.OtherContainerFragment">
++
++        <!-- TODO: Update blank fragment layout -->
++        <TextView
++            android:layout_width="match_parent"
++            android:layout_height="match_parent"
++            android:text="@string/hello_blank_fragment" />
++
++    </FrameLayout>
++</layout>
+\ No newline at end of file
+Index: app/src/main/java/com/example/kotlindemo/view/other/OtherContainerFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/kotlindemo/view/other/OtherContainerFragment.kt	(date 1616084069168)
++++ app/src/main/java/com/example/kotlindemo/view/other/OtherContainerFragment.kt	(date 1616084069168)
+@@ -0,0 +1,17 @@
++package com.example.kotlindemo.view.other
++
++import com.example.kotlindemo.R
++import com.example.kotlindemo.databinding.FragmentOtherContainerBinding
++import com.uniqlo.circle.ui.base.BaseFragment
++
++
++class OtherContainerFragment : BaseFragment<FragmentOtherContainerBinding>() {
++
++    companion object {
++        @JvmStatic
++        fun newInstance() = OtherContainerFragment()
++    }
++
++    override fun getLayoutId(): Int  = R.layout.fragment_other_container
++
++}
+\ No newline at end of file
+Index: app/src/main/java/com/example/kotlindemo/kt/coroutine/CoroutineSampleActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.kotlindemo.kt.coroutine\r\n\r\nimport androidx.appcompat.app.AppCompatActivity\r\nimport android.os.Bundle\r\nimport android.util.Log\r\nimport android.view.View\r\nimport com.example.kotlindemo.R\r\nimport com.lzy.okgo.OkGo\r\nimport com.lzy.okgo.callback.StringCallback\r\nimport kotlinx.android.synthetic.main.activity_coroutine_sample.*\r\nimport kotlinx.coroutines.*\r\nimport okhttp3.Call\r\nimport okhttp3.Response\r\nimport java.lang.Exception\r\n\r\nclass CoroutineSampleActivity : AppCompatActivity(), View.OnClickListener {\r\n\r\n    private val TAG = \"CoroutineSampleActivity\"\r\n    private lateinit var responseData: String //返回数据\r\n    override fun onClick(v: View?) {\r\n        when (v?.id) {\r\n            //三种创建方式\r\n            R.id.btnCreateByLaunch -> createByLaunch()\r\n            R.id.btnCreateByAsync -> createByAsync()\r\n            R.id.btnCreateByRunBlocking -> createByRunBlocking()\r\n            R.id.btnGetDataByAsync -> {\r\n                GlobalScope.launch(Dispatchers.Main) {\r\n                    getDataByAsync() //获取数据\r\n                    Log.d(TAG, \"返回数据: ${responseData}\")\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    /**\r\n     * 通过GlobalScope.launch 创建\r\n     *\r\n     * 设置 Dispatchers.Default / Dispatchers.IO  :\r\n     * 日志顺序 : 1 -> 4 -> 2 -> 3\r\n     * launch方式下使用两个参数创建的协程, 默认不阻塞线程 ,\r\n     * 协程内是子线程, 协程的创建切换了线程, 程序会同时往下运行(直接走到 4)\r\n     *\r\n     * 注 : delay()函数执行完后的内容默认是在子线程\r\n     *\r\n     * 设置Dispatchers.Main / Dispatchers.Unconfined(通常不会去new Thread, 这里可以当做主线程)\r\n     * 日志顺序 : 1 -> 2 -> 4 -> 3\r\n     * 因为创建协程的同时没有切换线程, 所以按顺序执行\r\n     *\r\n     * 如果不设置 Dispatchers.Main , 协程的方法体里一定都是运行在子线程(非主线程)\r\n     */\r\n    private fun createByLaunch() {\r\n        Log.d(TAG, \"1 .创建协程前 in ${Thread.currentThread()}\")\r\n        GlobalScope.launch(Dispatchers.Unconfined) {\r\n            Log.d(TAG, \"2. 协程delay前 in ${Thread.currentThread()}\")\r\n            delay(1000)\r\n            Log.d(TAG, \"3.  协程delay后 in ${Thread.currentThread()}\")\r\n        }\r\n        Log.d(TAG, \" 4. 协程方法体后 in ${Thread.currentThread()}\")\r\n    }\r\n\r\n    /**\r\n     * 通过GlobalScope.async创建  大体和launch方式相同\r\n     * 比launch方式多了一个await函数 ,该函数用于返回值(参照 getDataByAsync()) 方便应用于子协程\r\n     *\r\n     *设置 Dispatchers.Default / Dispatchers.IO  : 与launch相同\r\n     *\r\n     *设置Dispatchers.Main / Dispatchers.Unconfined(通常不会去new Thread, 这里可以当做主线程)\r\n     * 日志顺序也为 : 1 -> 4 -> 2 -> 3\r\n     */\r\n    private fun createByAsync() {\r\n        Log.d(TAG, \"1 .创建协程前 in ${Thread.currentThread()}\")\r\n        GlobalScope.async(Dispatchers.Main) {\r\n            Log.d(TAG, \"2. 协程delay前 in ${Thread.currentThread()}\")\r\n            delay(1000)\r\n            Log.d(TAG, \"3.  协程delay后 in ${Thread.currentThread()}\")\r\n        }\r\n        Log.d(TAG, \" 4. 协程方法体后 in ${Thread.currentThread()}\")\r\n    }\r\n\r\n    /**\r\n     * 通过Async获取数据\r\n     */\r\n    private suspend fun getDataByAsync() {\r\n        Log.d(TAG, \"1 .创建协程前 in ${Thread.currentThread()}\")\r\n        responseData = GlobalScope.async(Dispatchers.Default) {\r\n            Log.d(TAG, \"2. 协程体内 in ${Thread.currentThread()}\")\r\n            return@async getData()\r\n        }.await()\r\n        Log.d(TAG, \" 3. 协程方法体后 in ${Thread.currentThread()}\")\r\n    }\r\n\r\n    /**\r\n     * 通过runBlocking方式\r\n     * 该方式和launch与async最大的区别就是, 它可以阻塞线程,\r\n     * 其他两种如果不声明在主线程里, 是可以跳过代码块继续主线程逻辑\r\n     * 即runBlocking声明的代码块, 必须执行完, 原始线程才可以继续进行\r\n     *\r\n     * 这里需要注意, runBlocking不能声明Dispatchers.Main, 否则会直接堵死\r\n     *\r\n     */\r\n    private fun createByRunBlocking() {\r\n        Log.d(TAG, \"1 .创建协程前 in ${Thread.currentThread()}\")\r\n        runBlocking(Dispatchers.Unconfined) {\r\n            Log.d(TAG, \"2. 协程delay前 in ${Thread.currentThread()}\")\r\n            delay(1000)\r\n            Log.d(TAG, \"3.  协程delay后 in ${Thread.currentThread()}\")\r\n        }\r\n        Log.d(TAG, \" 4. 协程方法体后 in ${Thread.currentThread()}\")\r\n    }\r\n\r\n    suspend fun getData(): String {\r\n        delay(3000)\r\n        return \"返回数据\"\r\n    }\r\n\r\n    override fun onCreate(savedInstanceState: Bundle?) {\r\n        super.onCreate(savedInstanceState)\r\n        setContentView(R.layout.activity_coroutine_sample)\r\n        btnCreateByLaunch.setOnClickListener(this)\r\n        btnCreateByAsync.setOnClickListener(this)\r\n        btnGetDataByAsync.setOnClickListener(this)\r\n        btnCreateByRunBlocking.setOnClickListener(this)\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/kotlindemo/kt/coroutine/CoroutineSampleActivity.kt	(revision 792e085084404bc739fa5b8a0a9424acef48c019)
++++ app/src/main/java/com/example/kotlindemo/kt/coroutine/CoroutineSampleActivity.kt	(date 1616081848851)
+@@ -1,17 +1,12 @@
+ package com.example.kotlindemo.kt.coroutine
+ 
+-import androidx.appcompat.app.AppCompatActivity
+ import android.os.Bundle
+ import android.util.Log
+ import android.view.View
++import androidx.appcompat.app.AppCompatActivity
+ import com.example.kotlindemo.R
+-import com.lzy.okgo.OkGo
+-import com.lzy.okgo.callback.StringCallback
+ import kotlinx.android.synthetic.main.activity_coroutine_sample.*
+ import kotlinx.coroutines.*
+-import okhttp3.Call
+-import okhttp3.Response
+-import java.lang.Exception
+ 
+ class CoroutineSampleActivity : AppCompatActivity(), View.OnClickListener {
+ 
+Index: app/src/main/java/com/example/kotlindemo/base/BaseFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.uniqlo.circle.ui.base\r\n\r\nimport android.app.Activity.RESULT_CANCELED\r\nimport android.content.Context\r\nimport android.content.Intent\r\nimport android.os.Bundle\r\nimport android.os.Handler\r\nimport android.view.View\r\nimport androidx.annotation.IdRes\r\nimport androidx.fragment.app.Fragment\r\nimport com.uniqlo.circle.extension.getCurrentFragment\r\nimport com.uniqlo.circle.extension.hideKeyboard\r\nimport io.reactivex.disposables.CompositeDisposable\r\nimport io.reactivex.disposables.Disposable\r\nimport kotlin.reflect.KClass\r\n\r\n/**\r\n * Copyright © 2017 Asian Tech Co., Ltd.\r\n * Use this class to create base function for all fragments in this app\r\n */\r\nabstract class BaseFragment : Fragment(), ChangeDisplayStatusListener {\r\n\r\n    companion object {\r\n\r\n        private const val WAITING_TIME_FOR_HIDE_KEYBOARD = 300L\r\n        internal const val SYSTEM_UI_FLAG_LIGHT_STATUS_BAR = 8192\r\n    }\r\n\r\n    internal var moveToNextScreen = false\r\n    internal var currentChildFragment: BaseFragment? = null\r\n    private val subscription: CompositeDisposable = CompositeDisposable()\r\n    private val subscriptionSystemEvent: CompositeDisposable = CompositeDisposable()\r\n    private var requestCode: Int? = null\r\n    private var resultCode: Int = RESULT_CANCELED\r\n    private var result: Intent? = null\r\n\r\n    override fun onAttach(context: Context) {\r\n        super.onAttach(context)\r\n    }\r\n\r\n    override fun onCreate(savedInstanceState: Bundle?) {\r\n        super.onCreate(savedInstanceState)\r\n\r\n        childFragmentManager.addOnBackStackChangedListener {\r\n        }\r\n    }\r\n\r\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\r\n        super.onViewCreated(view, savedInstanceState)\r\n\r\n        if (!shouldHookBaseHideKeyboard()) {\r\n            hideKeyBoard()\r\n        }\r\n        addBackStackChangeListener()\r\n    }\r\n\r\n    override fun onResume() {\r\n        super.onResume()\r\n        onBindViewModel()\r\n    }\r\n\r\n    override fun onPause() {\r\n        super.onPause()\r\n        subscription.clear()\r\n    }\r\n\r\n    override fun onDestroy() {\r\n        super.onDestroy()\r\n        clearSubscriptionSystemEvent()\r\n    }\r\n\r\n    override fun onComeBack(fragment: Fragment?) {\r\n        // Call when come back to this screen. This screen going to subscribe event for FA.\r\n    }\r\n\r\n    override fun onComeBackForResult(\r\n        fragment: Fragment?,\r\n        requestCode: Int,\r\n        resultCode: Int,\r\n        data: Intent?\r\n    ) {\r\n    }\r\n\r\n    override fun onMoveToNextScreen() {\r\n        // Call when move to other screen. This screen going to unSubscribe events for FA.\r\n        moveToNextScreen = true\r\n        clearSubscriptionSystemEvent()\r\n    }\r\n\r\n    override fun onBackPressFragment() = Unit\r\n\r\n    /**\r\n     * This function is used to define subscription\r\n     */\r\n    abstract fun onBindViewModel()\r\n\r\n    /**\r\n     * Unsubscribe events for FA.\r\n     */\r\n    internal fun clearSubscriptionSystemEvent() {\r\n        subscriptionSystemEvent.clear()\r\n    }\r\n\r\n    /**\r\n     * Get container id.\r\n     */\r\n    @IdRes\r\n    internal open fun getContainerId(): Int = -1\r\n\r\n    internal fun setRequestCode(requestCode: Int) {\r\n        this.requestCode = requestCode\r\n    }\r\n\r\n    internal fun setResult(resultCode: Int, data: Intent?) {\r\n        this.resultCode = resultCode\r\n        this.result = data\r\n    }\r\n\r\n\r\n    internal open fun isShowFooterBar() = false\r\n\r\n    abstract fun getCurrentScreenFirebaseName(): String\r\n\r\n    protected fun addDisposables(vararg ds: Disposable) {\r\n        ds.forEach { subscription.add(it) }\r\n    }\r\n\r\n    protected open fun hideKeyBoard() {\r\n        Handler().postDelayed({\r\n\r\n            if (android.os.Build.VERSION.SDK_INT > 26) {\r\n                context?.hideKeyboard(view?.rootView)\r\n            } else {\r\n                context?.hideKeyboard(requireActivity())\r\n            }\r\n        }, WAITING_TIME_FOR_HIDE_KEYBOARD)\r\n    }\r\n\r\n    private fun addBackStackChangeListener() {\r\n        childFragmentManager.addOnBackStackChangedListener {\r\n                val current = getCurrentFragment(getContainerId()) as? BaseFragment\r\n                current?.let {\r\n                    if (!it.moveToNextScreen) {\r\n                        return@let\r\n                    }\r\n                    if (currentChildFragment?.requestCode == null) {\r\n                        current.onComeBack(currentChildFragment)\r\n                    } else {\r\n                        current.onComeBackForResult(\r\n                            currentChildFragment,\r\n                            currentChildFragment!!.requestCode!!,\r\n                            currentChildFragment?.resultCode\r\n                                ?: RESULT_CANCELED,\r\n                            currentChildFragment?.result\r\n                        )\r\n                    }\r\n                }\r\n                currentChildFragment?.onMoveToNextScreen()\r\n                currentChildFragment = current\r\n        }\r\n    }\r\n\r\n    private fun addDisposablesSystemEvent(vararg ds: Disposable) {\r\n        ds.forEach { subscriptionSystemEvent.add(it) }\r\n    }\r\n\r\n    open fun shouldHookPopBackStack(): Boolean = false\r\n\r\n    open fun shouldHookMainHideKeyboard(): Boolean = true\r\n\r\n    open fun shouldHookBaseHideKeyboard(): Boolean = false\r\n\r\n    /**\r\n     *  Call back when fragment pop from back stack\r\n     */\r\n    internal open fun trackEventScreenComeback(previousClass: KClass<*>?) {}\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/kotlindemo/base/BaseFragment.kt	(revision 792e085084404bc739fa5b8a0a9424acef48c019)
++++ app/src/main/java/com/example/kotlindemo/base/BaseFragment.kt	(date 1616084069178)
+@@ -5,20 +5,23 @@
+ import android.content.Intent
+ import android.os.Bundle
+ import android.os.Handler
++import android.view.LayoutInflater
+ import android.view.View
++import android.view.ViewGroup
+ import androidx.annotation.IdRes
++import androidx.databinding.DataBindingUtil
++import androidx.databinding.ViewDataBinding
+ import androidx.fragment.app.Fragment
+ import com.uniqlo.circle.extension.getCurrentFragment
+ import com.uniqlo.circle.extension.hideKeyboard
+ import io.reactivex.disposables.CompositeDisposable
+ import io.reactivex.disposables.Disposable
+-import kotlin.reflect.KClass
+ 
+ /**
+  * Copyright © 2017 Asian Tech Co., Ltd.
+  * Use this class to create base function for all fragments in this app
+  */
+-abstract class BaseFragment : Fragment(), ChangeDisplayStatusListener {
++abstract class BaseFragment<DB: ViewDataBinding> : Fragment(), ChangeDisplayStatusListener {
+ 
+     companion object {
+ 
+@@ -27,13 +30,13 @@
+     }
+ 
+     internal var moveToNextScreen = false
+-    internal var currentChildFragment: BaseFragment? = null
++    internal var currentChildFragment: BaseFragment<DB>? = null
+     private val subscription: CompositeDisposable = CompositeDisposable()
+     private val subscriptionSystemEvent: CompositeDisposable = CompositeDisposable()
+     private var requestCode: Int? = null
+     private var resultCode: Int = RESULT_CANCELED
+     private var result: Intent? = null
+-
++    private lateinit  var binding: DB
+     override fun onAttach(context: Context) {
+         super.onAttach(context)
+     }
+@@ -45,6 +48,15 @@
+         }
+     }
+ 
++    override fun onCreateView(
++        inflater: LayoutInflater,
++        container: ViewGroup?,
++        savedInstanceState: Bundle?
++    ): View? {
++        binding = DataBindingUtil.inflate(inflater, getLayoutId(), container, false)
++        return binding.root
++    }
++
+     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+         super.onViewCreated(view, savedInstanceState)
+ 
+@@ -54,11 +66,6 @@
+         addBackStackChangeListener()
+     }
+ 
+-    override fun onResume() {
+-        super.onResume()
+-        onBindViewModel()
+-    }
+-
+     override fun onPause() {
+         super.onPause()
+         subscription.clear()
+@@ -89,11 +96,6 @@
+ 
+     override fun onBackPressFragment() = Unit
+ 
+-    /**
+-     * This function is used to define subscription
+-     */
+-    abstract fun onBindViewModel()
+-
+     /**
+      * Unsubscribe events for FA.
+      */
+@@ -119,8 +121,6 @@
+ 
+     internal open fun isShowFooterBar() = false
+ 
+-    abstract fun getCurrentScreenFirebaseName(): String
+-
+     protected fun addDisposables(vararg ds: Disposable) {
+         ds.forEach { subscription.add(it) }
+     }
+@@ -164,15 +164,10 @@
+         ds.forEach { subscriptionSystemEvent.add(it) }
+     }
+ 
+-    open fun shouldHookPopBackStack(): Boolean = false
++    abstract fun getLayoutId(): Int
+ 
+-    open fun shouldHookMainHideKeyboard(): Boolean = true
+ 
+     open fun shouldHookBaseHideKeyboard(): Boolean = false
+ 
+-    /**
+-     *  Call back when fragment pop from back stack
+-     */
+-    internal open fun trackEventScreenComeback(previousClass: KClass<*>?) {}
+ 
+ }
+Index: app/src/main/res/layout/activity_main.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    android:orientation=\"vertical\"\r\n    tools:context=\".MainActivity\">\r\n    <androidx.appcompat.widget.AppCompatButton\r\n        android:id=\"@+id/btn_load\"\r\n        android:text=\"加载webView\"\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_margin=\"5dp\"/>\r\n    <WebView\r\n        android:id=\"@+id/webView\"\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"match_parent\"/>\r\n\r\n</LinearLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_main.xml	(revision 792e085084404bc739fa5b8a0a9424acef48c019)
++++ app/src/main/res/layout/activity_main.xml	(date 1616081848846)
+@@ -1,20 +1,31 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+     xmlns:tools="http://schemas.android.com/tools"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+-    android:orientation="vertical"
+-    tools:context=".MainActivity">
+-    <androidx.appcompat.widget.AppCompatButton
+-        android:id="@+id/btn_load"
+-        android:text="加载webView"
++    tools:context=".view.main.MainActivity">
++
++    <androidx.appcompat.widget.Toolbar
++        android:id="@+id/toolbar"
+         android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:layout_margin="5dp"/>
+-    <WebView
+-        android:id="@+id/webView"
++        android:layout_height="?actionBarSize"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toTopOf="parent"
++        app:title="主页" />
++
++    <com.google.android.material.tabs.TabLayout
++        android:id="@+id/tab_main"
+         android:layout_width="match_parent"
+-        android:layout_height="match_parent"/>
++        android:layout_height="@dimen/tabLayoutHeight"
++        app:layout_constraintBottom_toBottomOf="parent"
++        app:layout_constraintStart_toStartOf="parent" />
+ 
+-</LinearLayout>
+\ No newline at end of file
++    <androidx.viewpager.widget.ViewPager
++        android:id="@+id/vp_main"
++        android:layout_width="match_parent"
++        android:layout_height="0dp"
++        app:layout_constraintBottom_toTopOf="@+id/tab_main"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
++</androidx.constraintlayout.widget.ConstraintLayout>
+\ No newline at end of file
+Index: app/src/main/res/drawable/selector_main_tab_item_source_code.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/selector_main_tab_item_source_code.xml	(date 1616084769973)
++++ app/src/main/res/drawable/selector_main_tab_item_source_code.xml	(date 1616084769973)
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:drawable="@drawable/ic_source_code" android:state_selected="true" />
++    <item android:drawable="@drawable/ic_source_code_un_selected" />
++</selector>
+Index: app/src/main/res/drawable/selector_main_tab_item_other.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/selector_main_tab_item_other.xml	(date 1616084832194)
++++ app/src/main/res/drawable/selector_main_tab_item_other.xml	(date 1616084832194)
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:drawable="@drawable/ic_other" android:state_selected="true" />
++    <item android:drawable="@drawable/ic_other_un_selected" />
++</selector>
+Index: app/src/main/res/drawable/selector_main_tab_item_component.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/selector_main_tab_item_component.xml	(date 1616084772544)
++++ app/src/main/res/drawable/selector_main_tab_item_component.xml	(date 1616084772544)
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:drawable="@drawable/ic_component" android:state_selected="true" />
++    <item android:drawable="@drawable/ic_component_un_selected" />
++</selector>
+Index: app/src/main/res/drawable/selector_main_tab_item_jetpack.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/selector_main_tab_item_jetpack.xml	(date 1616084951924)
++++ app/src/main/res/drawable/selector_main_tab_item_jetpack.xml	(date 1616084951924)
+@@ -0,0 +1,5 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:drawable="@drawable/ic_jetpack" android:state_selected="true" />
++    <item android:drawable="@drawable/ic_jetpack_un_selected" />
++</selector>
+Index: app/src/main/res/drawable/ic_source_code_un_selected.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/ic_source_code_un_selected.xml	(date 1615456355000)
++++ app/src/main/res/drawable/ic_source_code_un_selected.xml	(date 1615456355000)
+@@ -0,0 +1,18 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M11.949,7.874m-6.596,0a6.596,6.596 0,1 1,13.192 0a6.596,6.596 0,1 1,-13.192 0"
++      android:strokeWidth="1.5"
++      android:fillColor="#00000000"
++      android:strokeColor="#BABABA"
++      android:fillType="evenOdd"/>
++  <path
++      android:pathData="M14.492,16.867c1.726,0 3.288,0.7 4.42,1.83 0.966,0.968 1.618,2.25 1.786,3.68h0l-17.4,0.223c0.163,-1.519 0.808,-2.855 1.774,-3.855 1.132,-1.17 2.701,-1.878 4.436,-1.878h0z"
++      android:strokeWidth="1.5"
++      android:fillColor="#00000000"
++      android:strokeColor="#BABABA"
++      android:fillType="evenOdd"/>
++</vector>
+Index: app/src/main/res/values/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><resources>\r\n    <string name=\"app_name\">KotlinDemo</string>\r\n\r\n    <!-- TODO: Remove or change this placeholder text -->\r\n    <string name=\"hello_blank_fragment\">Hello blank fragment</string>\r\n</resources>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/strings.xml	(revision 792e085084404bc739fa5b8a0a9424acef48c019)
++++ app/src/main/res/values/strings.xml	(date 1616084230374)
+@@ -3,4 +3,9 @@
+ 
+     <!-- TODO: Remove or change this placeholder text -->
+     <string name="hello_blank_fragment">Hello blank fragment</string>
++    <string name="main_tab_component_title">View</string>
++    <string name="main_tab_jetpack_title">Jet pack</string>
++    <string name="main_tab_source_code_title">Source Code</string>
++    <string name="main_tab_other_title">Other</string>
++
+ </resources>
+Index: app/src/main/res/drawable/ic_component.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/ic_component.xml	(date 1615456355000)
++++ app/src/main/res/drawable/ic_component.xml	(date 1615456355000)
+@@ -0,0 +1,10 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M12,0c6.627,0 12,5.372 12,12 0,6.627 -5.373,12 -12,12S0,18.627 0,12C0,5.372 5.373,0 12,0zM12,1.5C6.21,1.5 1.5,6.21 1.5,12S6.21,22.5 12,22.5 22.5,17.79 22.5,12 17.79,1.5 12,1.5zM12.75,7.044l-0.001,4.175h4.203v1.5h-4.203l0.001,4.231h-1.5l-0.001,-4.231L7.05,12.719v-1.5h4.199l0.001,-4.175h1.5z"
++      android:fillColor="#1B1B1B"
++      android:fillType="evenOdd"/>
++</vector>
+Index: app/src/main/res/drawable/ic_source_code.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/ic_source_code.xml	(date 1615456355000)
++++ app/src/main/res/drawable/ic_source_code.xml	(date 1615456355000)
+@@ -0,0 +1,30 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M11.949,7.874m-6.596,0a6.596,6.596 0,1 1,13.192 0a6.596,6.596 0,1 1,-13.192 0"
++      android:strokeWidth="1.5"
++      android:fillColor="#1B1B1B"
++      android:strokeColor="#1B1B1B"
++      android:fillType="evenOdd"/>
++  <path
++      android:pathData="M14.492,16.867c1.726,0 3.288,0.7 4.42,1.83 0.966,0.968 1.618,2.25 1.786,3.68h0l-17.4,0.223c0.163,-1.519 0.808,-2.855 1.774,-3.855 1.132,-1.17 2.701,-1.878 4.436,-1.878h0z"
++      android:strokeWidth="1.5"
++      android:fillColor="#1B1B1B"
++      android:strokeColor="#1B1B1B"
++      android:fillType="evenOdd"/>
++  <path
++      android:pathData="M8.419,4.913m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0"
++      android:fillColor="#FFF"
++      android:fillType="evenOdd"/>
++  <path
++      android:pathData="M13.796,4.913m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0"
++      android:fillColor="#FFF"
++      android:fillType="evenOdd"/>
++  <path
++      android:pathData="M12.2922,7.7128l-2.5896,-0.0452c-0.3469,-0.0061 -0.6335,0.255 -0.6393,0.5829 -0.0239,1.3708 0.6314,2.2154 1.8852,2.2372s1.9372,-0.7993 1.9612,-2.1701c0.0057,-0.328 -0.2706,-0.5988 -0.6175,-0.6049z"
++      android:fillColor="#FFF"
++      android:fillType="nonZero"/>
++</vector>
+Index: app/src/main/res/drawable/ic_other_un_selected.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/ic_other_un_selected.xml	(date 1615456355000)
++++ app/src/main/res/drawable/ic_other_un_selected.xml	(date 1615456355000)
+@@ -0,0 +1,10 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M21.51,1.65L2.49,1.65v14.488h19.02L21.51,1.649zM20.01,3.149v11.488L3.989,14.637L3.989,3.149L20.01,3.149zM18.75,17.863L18.75,19.363 5.25,19.363 5.25,17.863zM16.75,20.733L16.75,22.233 7.25,22.233 7.25,20.733z"
++      android:fillColor="#BABABA"
++      android:fillType="evenOdd"/>
++</vector>
+Index: app/src/main/res/drawable/ic_jetpack.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/ic_jetpack.xml	(date 1615456355000)
++++ app/src/main/res/drawable/ic_jetpack.xml	(date 1615456355000)
+@@ -0,0 +1,10 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="25dp"
++    android:viewportWidth="24"
++    android:viewportHeight="25">
++  <path
++      android:pathData="M12,0.5c6.627,0 12,5.373 12,12s-5.373,12 -12,12S0,19.127 0,12.5 5.373,0.5 12,0.5zM17,7.5h-1.768L7,15.732L7,17.5h1.768L17,9.268L17,7.5z"
++      android:fillColor="#1B1B1B"
++      android:fillType="evenOdd"/>
++</vector>
+Index: app/src/main/java/com/example/kotlindemo/study/source_code/okhttp3/OkHttp3.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/kotlindemo/study/source_code/okhttp3/OkHttp3.kt	(date 1615993497046)
++++ app/src/main/java/com/example/kotlindemo/study/source_code/okhttp3/OkHttp3.kt	(date 1615993497046)
+@@ -0,0 +1,25 @@
++package com.example.kotlindemo.study.source_code.okhttp3
++
++import okhttp3.*
++import java.io.IOException
++
++
++class OkHttp3 {
++
++
++    fun newOkHttp3Call() {
++        val okHttpClientBuilder = OkHttpClient().newBuilder()
++        val okHttpClient = okHttpClientBuilder.build()
++        val request = Request.Builder().build()
++        okHttpClient.newCall(request).enqueue(object : Callback {
++            override fun onFailure(call: Call, e: IOException) {
++                TODO("Not yet implemented")
++            }
++
++            override fun onResponse(call: Call, response: Response) {
++                TODO("Not yet implemented")
++            }
++        })
++
++    }
++}
+\ No newline at end of file
+Index: app/src/main/res/drawable/ic_component_un_selected.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/ic_component_un_selected.xml	(date 1615456355000)
++++ app/src/main/res/drawable/ic_component_un_selected.xml	(date 1615456355000)
+@@ -0,0 +1,10 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M12,0c6.627,0 12,5.372 12,12 0,6.627 -5.373,12 -12,12S0,18.627 0,12C0,5.372 5.373,0 12,0zM12,1.5C6.21,1.5 1.5,6.21 1.5,12S6.21,22.5 12,22.5 22.5,17.79 22.5,12 17.79,1.5 12,1.5zM12.75,7.044l-0.001,4.175h4.203v1.5h-4.203l0.001,4.231h-1.5l-0.001,-4.231L7.05,12.719v-1.5h4.199l0.001,-4.175h1.5z"
++      android:fillColor="#BABABA"
++      android:fillType="evenOdd"/>
++</vector>
+Index: app/src/main/res/drawable/ic_other.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/ic_other.xml	(date 1615456355000)
++++ app/src/main/res/drawable/ic_other.xml	(date 1615456355000)
+@@ -0,0 +1,10 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M21.511,1.649L2.489,1.649 2.489,16.138 21.511,16.138zM18.75,17.863L18.75,19.363 5.25,19.363 5.25,17.863zM16.75,20.733L16.75,22.233 7.25,22.233 7.25,20.733z"
++      android:fillColor="#1B1B1B"
++      android:fillType="evenOdd"/>
++</vector>
+Index: app/src/main/res/drawable/ic_jetpack_un_selected.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/ic_jetpack_un_selected.xml	(date 1615456355000)
++++ app/src/main/res/drawable/ic_jetpack_un_selected.xml	(date 1615456355000)
+@@ -0,0 +1,10 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++  <path
++      android:pathData="M12,0c6.627,0 12,5.373 12,12s-5.373,12 -12,12S0,18.627 0,12 5.373,0 12,0zM12,1.5C6.21,1.5 1.5,6.21 1.5,12S6.21,22.5 12,22.5 22.5,17.79 22.5,12 17.79,1.5 12,1.5zM17,7v1.768L8.768,17L7,17v-1.768L15.232,7L17,7z"
++      android:fillColor="#BABABA"
++      android:fillType="evenOdd"/>
++</vector>
+Index: app/src/main/java/com/example/kotlindemo/http/config/HttpLoggingInterceptor.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.kotlindemo.http.config;\r\n\r\nimport java.io.EOFException;\r\nimport java.io.IOException;\r\nimport java.nio.charset.Charset;\r\nimport java.nio.charset.UnsupportedCharsetException;\r\nimport java.util.concurrent.TimeUnit;\r\n\r\nimport okhttp3.Connection;\r\nimport okhttp3.Headers;\r\nimport okhttp3.Interceptor;\r\nimport okhttp3.MediaType;\r\nimport okhttp3.Protocol;\r\nimport okhttp3.Request;\r\nimport okhttp3.RequestBody;\r\nimport okhttp3.Response;\r\nimport okhttp3.ResponseBody;\r\nimport okhttp3.internal.http.HttpHeaders;\r\nimport okhttp3.internal.platform.Platform;\r\nimport okio.Buffer;\r\nimport okio.BufferedSource;\r\n\r\nimport static okhttp3.internal.platform.Platform.INFO;\r\n\r\n/**\r\n * Created by Wpy on 2016/12/23.\r\n * 打印网络日志的拦截器\r\n */\r\n\r\npublic final class HttpLoggingInterceptor implements Interceptor {\r\n    private static final Charset UTF8 = Charset.forName(\"UTF-8\");\r\n\r\n    public enum Level {\r\n        /** No logs. */\r\n        NONE,\r\n        /**\r\n         * Logs request and response lines.\r\n         *\r\n         * <p>Example:\r\n         * <pre>{@code\r\n         * --> POST /greeting http/1.1 (3-byte body)\r\n         *\r\n         * <-- 200 OK (22ms, 6-byte body)\r\n         * }</pre>\r\n         */\r\n        BASIC,\r\n        /**\r\n         * Logs request and response lines and their respective headers.\r\n         *\r\n         * <p>Example:\r\n         * <pre>{@code\r\n         * --> POST /greeting http/1.1\r\n         * Host: example.com\r\n         * Content-Type: plain/text\r\n         * Content-Length: 3\r\n         * --> END POST\r\n         *\r\n         * <-- 200 OK (22ms)\r\n         * Content-Type: plain/text\r\n         * Content-Length: 6\r\n         * <-- END HTTP\r\n         * }</pre>\r\n         */\r\n        HEADERS,\r\n        /**\r\n         * Logs request and response lines and their respective headers and bodies (if present).\r\n         *\r\n         * <p>Example:\r\n         * <pre>{@code\r\n         * --> POST /greeting http/1.1\r\n         * Host: example.com\r\n         * Content-Type: plain/text\r\n         * Content-Length: 3\r\n         *\r\n         * Hi?\r\n         * --> END POST\r\n         *\r\n         * <-- 200 OK (22ms)\r\n         * Content-Type: plain/text\r\n         * Content-Length: 6\r\n         *\r\n         * Hello!\r\n         * <-- END HTTP\r\n         * }</pre>\r\n         */\r\n        BODY\r\n    }\r\n\r\n    public interface Logger {\r\n        void log(String message);\r\n\r\n        /** A {@link Logger} defaults output appropriate for the current platform. */\r\n        Logger DEFAULT = new Logger() {\r\n            @Override\r\n            public void log(String message) {\r\n                Platform.get().log(INFO, message, null);\r\n            }\r\n        };\r\n    }\r\n\r\n    public HttpLoggingInterceptor() {\r\n        this(Logger.DEFAULT);\r\n    }\r\n\r\n    public HttpLoggingInterceptor(Logger logger) {\r\n        this.logger = logger;\r\n    }\r\n\r\n    private final Logger logger;\r\n\r\n    private volatile Level level = Level.NONE;\r\n\r\n    /** Change the level at which this interceptor logs. */\r\n    public HttpLoggingInterceptor setLevel(Level level) {\r\n        if (level == null) throw new NullPointerException(\"level == null. Use Level.NONE instead.\");\r\n        this.level = level;\r\n        return this;\r\n    }\r\n\r\n    public Level getLevel() {\r\n        return level;\r\n    }\r\n\r\n    @Override\r\n    public Response intercept(Chain chain) throws IOException {\r\n        Level level = this.level;\r\n\r\n        Request request = chain.request();\r\n        if (level == Level.NONE) {\r\n            return chain.proceed(request);\r\n        }\r\n\r\n        boolean logBody = level == Level.BODY;\r\n        boolean logHeaders = logBody || level == Level.HEADERS;\r\n\r\n        RequestBody requestBody = request.body();\r\n        boolean hasRequestBody = requestBody != null;\r\n\r\n        Connection connection = chain.connection();\r\n        Protocol protocol = connection != null ? connection.protocol() : Protocol.HTTP_1_1;\r\n        String requestStartMessage = \"--> \" + request.method() + ' ' + request.url() + ' ' + protocol;\r\n        if (!logHeaders && hasRequestBody) {\r\n            requestStartMessage += \" (\" + requestBody.contentLength() + \"-byte body)\";\r\n        }\r\n        logger.log(requestStartMessage);\r\n\r\n        if (logHeaders) {\r\n            if (hasRequestBody) {\r\n                // Request body headers are only present when installed as a network interceptor. Force\r\n                // them to be included (when available) so there values are known.\r\n                if (requestBody.contentType() != null) {\r\n                    logger.log(\"Content-Type: \" + requestBody.contentType());\r\n                }\r\n                if (requestBody.contentLength() != -1) {\r\n                    logger.log(\"Content-Length: \" + requestBody.contentLength());\r\n                }\r\n            }\r\n\r\n            Headers headers = request.headers();\r\n            for (int i = 0, count = headers.size(); i < count; i++) {\r\n                String name = headers.name(i);\r\n                // Skip headers from the request body as they are explicitly logged above.\r\n                if (!\"Content-Type\".equalsIgnoreCase(name) && !\"Content-Length\".equalsIgnoreCase(name)) {\r\n                    logger.log(name + \": \" + headers.value(i));\r\n                }\r\n            }\r\n\r\n            if (!logBody || !hasRequestBody) {\r\n                logger.log(\"--> END \" + request.method());\r\n            } else if (bodyEncoded(request.headers())) {\r\n                logger.log(\"--> END \" + request.method() + \" (encoded body omitted)\");\r\n            } else {\r\n                Buffer buffer = new Buffer();\r\n                requestBody.writeTo(buffer);\r\n\r\n                Charset charset = UTF8;\r\n                MediaType contentType = requestBody.contentType();\r\n                if (contentType != null) {\r\n                    charset = contentType.charset(UTF8);\r\n                }\r\n\r\n                logger.log(\"\");\r\n                if (isPlaintext(buffer)) {\r\n                    logger.log(buffer.readString(charset));\r\n                    logger.log(\"--> END \" + request.method()\r\n                            + \" (\" + requestBody.contentLength() + \"-byte body)\");\r\n                } else {\r\n                    logger.log(\"--> END \" + request.method() + \" (binary \"\r\n                            + requestBody.contentLength() + \"-byte body omitted)\");\r\n                }\r\n            }\r\n        }\r\n\r\n        long startNs = System.nanoTime();\r\n        Response response;\r\n        try {\r\n            response = chain.proceed(request);\r\n        } catch (Exception e) {\r\n            logger.log(\"<-- HTTP FAILED: \" + e);\r\n            throw e;\r\n        }\r\n        long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);\r\n\r\n        ResponseBody responseBody = response.body();\r\n        long contentLength = responseBody.contentLength();\r\n        String bodySize = contentLength != -1 ? contentLength + \"-byte\" : \"unknown-length\";\r\n        logger.log(\"<-- \" + response.code() + ' ' + response.message() + ' '\r\n                + response.request().url() + \" (\" + tookMs + \"ms\" + (!logHeaders ? \", \"\r\n                + bodySize + \" body\" : \"\") + ')');\r\n\r\n        if (logHeaders) {\r\n            Headers headers = response.headers();\r\n            for (int i = 0, count = headers.size(); i < count; i++) {\r\n                logger.log(headers.name(i) + \": \" + headers.value(i));\r\n            }\r\n\r\n            if (!logBody || !HttpHeaders.hasBody(response)) {\r\n                logger.log(\"<-- END HTTP\");\r\n            } else if (bodyEncoded(response.headers())) {\r\n                logger.log(\"<-- END HTTP (encoded body omitted)\");\r\n            } else {\r\n                BufferedSource source = responseBody.source();\r\n                source.request(Long.MAX_VALUE); // Buffer the entire body.\r\n                Buffer buffer = source.buffer();\r\n\r\n                Charset charset = UTF8;\r\n                MediaType contentType = responseBody.contentType();\r\n                if (contentType != null) {\r\n                    try {\r\n                        charset = contentType.charset(UTF8);\r\n                    } catch (UnsupportedCharsetException e) {\r\n                        logger.log(\"\");\r\n                        logger.log(\"Couldn't decode the response body; charset is likely malformed.\");\r\n                        logger.log(\"<-- END HTTP\");\r\n\r\n                        return response;\r\n                    }\r\n                }\r\n\r\n                if (!isPlaintext(buffer)) {\r\n                    logger.log(\"\");\r\n                    logger.log(\"<-- END HTTP (binary \" + buffer.size() + \"-byte body omitted)\");\r\n                    return response;\r\n                }\r\n\r\n                if (contentLength != 0) {\r\n                    logger.log(\"\");\r\n                    logger.log(buffer.clone().readString(charset));\r\n                }\r\n\r\n                logger.log(\"<-- END HTTP (\" + buffer.size() + \"-byte body)\");\r\n            }\r\n        }\r\n\r\n        return response;\r\n    }\r\n\r\n    /**\r\n     * Returns true if the body in question probably contains human readable text. Uses a small sample\r\n     * of code points to detect unicode control characters commonly used in binary file signatures.\r\n     */\r\n    static boolean isPlaintext(Buffer buffer) {\r\n        try {\r\n            Buffer prefix = new Buffer();\r\n            long byteCount = buffer.size() < 64 ? buffer.size() : 64;\r\n            buffer.copyTo(prefix, 0, byteCount);\r\n            for (int i = 0; i < 16; i++) {\r\n                if (prefix.exhausted()) {\r\n                    break;\r\n                }\r\n                int codePoint = prefix.readUtf8CodePoint();\r\n                if (Character.isISOControl(codePoint) && !Character.isWhitespace(codePoint)) {\r\n                    return false;\r\n                }\r\n            }\r\n            return true;\r\n        } catch (EOFException e) {\r\n            return false; // Truncated UTF-8 sequence.\r\n        }\r\n    }\r\n\r\n    private boolean bodyEncoded(Headers headers) {\r\n        String contentEncoding = headers.get(\"Content-Encoding\");\r\n        return contentEncoding != null && !contentEncoding.equalsIgnoreCase(\"identity\");\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/kotlindemo/http/config/HttpLoggingInterceptor.java	(revision 792e085084404bc739fa5b8a0a9424acef48c019)
++++ app/src/main/java/com/example/kotlindemo/http/config/HttpLoggingInterceptor.java	(date 1615995480384)
+@@ -16,12 +16,9 @@
+ import okhttp3.Response;
+ import okhttp3.ResponseBody;
+ import okhttp3.internal.http.HttpHeaders;
+-import okhttp3.internal.platform.Platform;
+ import okio.Buffer;
+ import okio.BufferedSource;
+ 
+-import static okhttp3.internal.platform.Platform.INFO;
+-
+ /**
+  * Created by Wpy on 2016/12/23.
+  * 打印网络日志的拦截器
+@@ -93,7 +90,6 @@
+         Logger DEFAULT = new Logger() {
+             @Override
+             public void log(String message) {
+-                Platform.get().log(INFO, message, null);
+             }
+         };
+     }
+Index: app/src/main/java/com/example/kotlindemo/base/BaseFragmentPagerAdapter.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/kotlindemo/base/BaseFragmentPagerAdapter.kt	(date 1616085233848)
++++ app/src/main/java/com/example/kotlindemo/base/BaseFragmentPagerAdapter.kt	(date 1616085233848)
+@@ -0,0 +1,14 @@
++package com.example.kotlindemo.base
++
++import androidx.fragment.app.Fragment
++import androidx.fragment.app.FragmentPagerAdapter
++
++class BaseFragmentPagerAdapter(val list:): FragmentPagerAdapter(BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
++    override fun getItem(position: Int): Fragment {
++        TODO("Not yet implemented")
++    }
++
++    override fun getCount(): Int {
++        TODO("Not yet implemented")
++    }
++}
+\ No newline at end of file

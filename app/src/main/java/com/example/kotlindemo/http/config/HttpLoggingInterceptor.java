@@ -16,11 +16,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.internal.http.HttpHeaders;
-import okhttp3.internal.platform.Platform;
 import okio.Buffer;
 import okio.BufferedSource;
-
-import static okhttp3.internal.platform.Platform.INFO;
 
 /**
  * Created by Wpy on 2016/12/23.
@@ -93,7 +90,6 @@ public final class HttpLoggingInterceptor implements Interceptor {
         Logger DEFAULT = new Logger() {
             @Override
             public void log(String message) {
-                Platform.get().log(INFO, message, null);
             }
         };
     }
