@@ -1,10 +1,8 @@
 package com.example.kotlindemo.http
 
-import android.bluetooth.BluetoothClass
 import android.os.Build
 import com.example.kotlindemo.BuildConfig
 import com.example.kotlindemo.http.config.HttpLoggingInterceptor
-import com.google.android.material.internal.ContextUtils
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import com.uniqlo.circle.architecture.data.api.NullOnEmptyConverterFactory
@@ -15,9 +13,7 @@ import okhttp3.Protocol
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
-import java.lang.Character.getName
-import java.util.Collections
-import java.util.Locale
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 open class ApiClient private constructor(url: String? = null) {
@@ -81,6 +77,7 @@ open class ApiClient private constructor(url: String? = null) {
             return Locale.JAPAN.country
         }
     }
+
 
     val service: ApiService
         get() {
