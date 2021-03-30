@@ -6,4 +6,10 @@
     <string name="main_tab_source_code_title">Source Code</string>
     <string name="main_tab_other_title">Other</string>
 
+    <!--  test fragment live cycle-->
+    <string name="btn_to_first_add_fragment">跳转到第一个Fragment</string>
+    <string name="btn_to_first_second_fragment">跳转到第二个Fragment</string>
+    <string name="text_first_add_fragment">显示第一个Fragment界面</string>
+    <string name="text_second_add_fragment">显示第二个Fragment界面</string>
+
 </resources>

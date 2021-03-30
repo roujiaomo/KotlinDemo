@@ -36,7 +36,7 @@ abstract class BaseFragment<DB: ViewDataBinding> : Fragment(), ChangeDisplayStat
     private var requestCode: Int? = null
     private var resultCode: Int = RESULT_CANCELED
     private var result: Intent? = null
-    private lateinit  var binding: DB
+     lateinit  var binding: DB
     override fun onAttach(context: Context) {
         super.onAttach(context)
     }
@@ -59,7 +59,7 @@ abstract class BaseFragment<DB: ViewDataBinding> : Fragment(), ChangeDisplayStat
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+//        view.isClickable = true
         if (!shouldHookBaseHideKeyboard()) {
             hideKeyBoard()
         }

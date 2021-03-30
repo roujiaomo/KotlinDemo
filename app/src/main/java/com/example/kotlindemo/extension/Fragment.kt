@@ -1,7 +1,6 @@
 package com.uniqlo.circle.extension
 
 import androidx.annotation.IdRes
-import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModel
@@ -11,7 +10,7 @@ import com.example.kotlindemo.R
 import com.uniqlo.circle.ui.base.BaseFragment
 
 internal fun Fragment.addChildFragment(
-    @IdRes containerId: Int, fragment: BaseFragment<ViewDataBinding>, backStack: String? = null,
+    @IdRes containerId: Int, fragment: BaseFragment<*>, backStack: String? = null,
     t: (transaction: FragmentTransaction) -> Unit = {}
 ) {
     if (childFragmentManager.findFragmentByTag(backStack) == null) {
@@ -27,7 +26,7 @@ internal fun Fragment.addChildFragment(
 }
 
 internal fun Fragment.addChildFragmentForResult(
-    @IdRes containerId: Int, fragment: BaseFragment<ViewDataBinding>, requestCode: Int, backStack: String? = null,
+    @IdRes containerId: Int, fragment: BaseFragment<*>, requestCode: Int, backStack: String? = null,
     t: (transaction: FragmentTransaction) -> Unit = {}
 ) {
     (getCurrentFragment(containerId) as? BaseFragment<*>)?.onMoveToNextScreen()
@@ -48,7 +47,7 @@ internal fun Fragment.popChildFragment() {
 }
 
 internal fun Fragment.replaceChildFragment(
-    @IdRes containerId: Int, fragment: BaseFragment<ViewDataBinding>, backStack: String? = null,
+    @IdRes containerId: Int, fragment: BaseFragment<*>, backStack: String? = null,
     t: (transaction: FragmentTransaction) -> Unit = {}
 ) {
     val transaction = childFragmentManager.beginTransaction()
