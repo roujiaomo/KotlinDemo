@@ -1,5 +1,8 @@
 package com.example.kotlindemo.study.thread;
 
+/**
+ * synchronized : 解决了数据同步问题, 且线程是安全的
+ */
 public class Synchronized {
 
     public static int firstValue = 0;
